@@ -169,7 +169,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '[{asctime}] {levelname} {message}',
+            'format': '[{asctime}] {levelname} {message} {request_url}',
             'style': '{',
         },
     },
@@ -197,5 +197,5 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-    }
+    },
 }
