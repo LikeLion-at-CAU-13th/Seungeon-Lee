@@ -8,8 +8,11 @@ class RequestLoggingMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # 요청 URL을 로그에 포함시킴
-        logger.info(f"[{datetime.now()}] {request.method} {request.get_full_path()}")
-        
+        # 요청 URL을 한 줄에 포함시켜서 기록
+        logger.info(
+            '[{}] {} {}'.format(datetime.now(), request.method, request.get_full_path()),
+            extra={'request_url': request.get_full_path()}
+        )
+
         response = self.get_response(request)
         return response
