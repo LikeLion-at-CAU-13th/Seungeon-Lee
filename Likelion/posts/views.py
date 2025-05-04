@@ -3,9 +3,67 @@ from django.http import JsonResponse # 추가
 from django.shortcuts import get_object_or_404 # 추가
 from django.views.decorators.http import require_http_methods # 추가
 from .models import * # 추가
+
+from .serializers import PostSerializer, CommentSerializer, LinkCategorySerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import Http404
 import json
 
-# Create your views here.
+class PostList(APIView):
+    def post(self, request, format=None):
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, format=None):
+        posts = Post.objects.all()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+    
+    
+class PostDetail(APIView):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+    def put(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+################
+## week7 과제 ##
+################
+class CommentList(APIView):
+    # 특정 게시글에 포함된 모든 comment를 조회하는 API 만들기
+    def get(self, request, post_id):
+        comment = Comment.objects.filter(post = post_id)
+        serializer = CommentSerializer(comment, many=True)
+        return Response(serializer.data)
+
+    
+class CategoryPost(APIView):
+    # 카레고리 별로 게시글을 필터링해서 볼 수 있는 기능인데 게시글은 최신 작성 순으로 정렬
+    def get(self, request, category):
+        linkcategory = LinkCategory.objects.filter(category_id=category).order_by('-post__created')
+        serializer = LinkCategorySerializer(linkcategory, many=True)
+        return Response(serializer.data)
+    
+
 
 def hello_world(request):
     if request.method == "GET":
@@ -16,7 +74,6 @@ def hello_world(request):
     
 def index(request):
     return render(request, 'index.html')
-
 
 @require_http_methods(["GET"])
 def get_post_detail(reqeust, id):
@@ -32,9 +89,6 @@ def get_post_detail(reqeust, id):
         "status" : 200,
         "data": post_detail_json})
     
-
-
-# 함수 데코레이터, 특정 http method만 허용
 @require_http_methods(["POST", "GET"])
 def post_list(request):
     
@@ -196,3 +250,4 @@ def filter_post(request, category):
             'message': '카테고리별 POST 조회',
             'data': filtered_post_json_all
         })
+        
