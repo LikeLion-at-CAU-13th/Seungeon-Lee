@@ -10,8 +10,36 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 import json
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from config.permissions import BlockPermission, IsOwnerOrReadOnly
+
+## 세션 ##
+class PostDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, BlockPermission]
+
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+    
+    def put(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post, data=request.data)
+        if serializer.is_valid(): # update이니까 유효성 검사 필요
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 class PostList(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, BlockPermission]
+    
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
@@ -26,6 +54,8 @@ class PostList(APIView):
     
     
 class PostDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, BlockPermission, IsOwnerOrReadOnly]
+    
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         serializer = PostSerializer(post)
