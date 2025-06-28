@@ -75,6 +75,9 @@ class PostDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+################
+## week7 과제 ##
+################
 class CommentList(APIView):
     # 특정 게시글에 포함된 모든 comment를 조회하는 API 만들기
     def get(self, request, post_id):
