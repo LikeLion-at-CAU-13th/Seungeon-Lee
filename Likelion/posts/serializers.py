@@ -4,7 +4,13 @@ from rest_framework import serializers
 from .models import Post
 from .models import Comment
 from .models import LinkCategory
+from .models import Image
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = "__all__"
+        
 class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
