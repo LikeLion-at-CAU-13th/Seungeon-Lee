@@ -218,3 +218,34 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': False,
     'TOKEN_USER_CLASS': 'accounts.User',
 }
+
+
+# django-allauth 라이브러리에서 사용하는 옵션
+ACCOUNT_LOGIN_METHODS = {'email'}                  # 로그인 방식 설정
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*']    # 회원가입 시 필수 입력 필드 설정
+
+DB_PW = get_secret("DB_PW")
+
+
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.mysql',
+		'NAME': "likelion13th",
+		'USER': "admin", # root로 접속하여 DB를 만들었다면 'root'
+		'PASSWORD': DB_PW, # 비밀번호는 secrets.json에 저장
+		'HOST': '127.0.0.1',
+		'PORT': '3307',
+	}
+}
+
+###AWS###
+AWS_ACCESS_KEY_ID = get_secret("AWS_ACCESS_KEY_ID") # .csv 파일에 있는 내용을 입력 Access key ID. IAM 계정 관련
+AWS_SECRET_ACCESS_KEY = get_secret("AWS_SECRET_ACCESS_KEY") # .csv 파일에 있는 내용을 입력 Secret access key. IAM 계정 관련
+AWS_REGION = 'ap-northeast-2'
+
+###S3###
+AWS_STORAGE_BUCKET_NAME = 'likelion13th-lee'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
