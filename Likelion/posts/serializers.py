@@ -13,20 +13,29 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 class PostSerializer(serializers.ModelSerializer):
-
     class Meta:
-	# 어떤 모델을 시리얼라이즈할 건지
         model = Post
-        # 모델에서 어떤 필드를 가져올지
-        # 전부 가져오고 싶을 때
         fields = "__all__"
-    
-    # 예외 처리 (필드 단위 체크)
+
     def validate(self, data):
+        request = self.context.get('request')
+        user = request.user if request else None
+
+        # 1. 중복 제목 검사
         if Post.objects.filter(title=data['title']).exists():
             raise serializers.ValidationError({
                 'title': f"'{data['title']}' 제목의 게시글이 이미 존재합니다."
             })
+
+        # 2. 하루 1개 게시글 제한 (오늘 날짜 기준)
+        if user and Post.objects.filter(
+            user=user,
+            created__date=timezone.now().date()
+        ).exists():
+            raise serializers.ValidationError({
+                'non_field_errors': ["하루에 하나의 게시글만 작성할 수 있습니다."]
+            })
+
         return data
         
 class CommentSerializer(serializers.ModelSerializer):
