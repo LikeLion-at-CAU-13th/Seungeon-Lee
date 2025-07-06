@@ -24,9 +24,8 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-
-    
     path('', PostList.as_view()),
+    # path('<int:id>/', get_post_detail),
     path('<int:post_id>/', PostDetail.as_view()),    
     path('comment/<int:post_id>/', CommentList.as_view()),
     path('filter/<int:category>/', CategoryPost.as_view()),

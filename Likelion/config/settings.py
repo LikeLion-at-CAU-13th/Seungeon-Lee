@@ -91,6 +91,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'posts.middleware.RequestLoggingMiddleware',
     "allauth.account.middleware.AccountMiddleware", 
+    "config.middlewares.ExceptionHandlerMiddleware",  # 커스텀 예외 처리 미들웨어 추가
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -112,17 +113,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
@@ -219,6 +209,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    # 커스텀 예외 처리 함수 지정
+    'EXCEPTION_HANDLER': 'config.custom_exception_handler.custom_exception_handler',
 }
 
 REST_USE_JWT = True
@@ -244,8 +236,8 @@ DATABASES = {
 		'NAME': "likelion13th",
 		'USER': "admin", # root로 접속하여 DB를 만들었다면 'root'
 		'PASSWORD': DB_PW, # 비밀번호는 secrets.json에 저장
-		'HOST': '127.0.0.1',
-		'PORT': '3307',
+		'HOST': "127.0.0.1",
+		'PORT': '3307', # 터널에서 연결할 로컬 포트
 	}
 }
 
