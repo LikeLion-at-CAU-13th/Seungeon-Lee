@@ -85,12 +85,13 @@ class CommentCreate(APIView):
     )
     def post(self, request, format=None):
         serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
+            print("여긴 들어온거야?")
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# week12
+# 게시글 생성 및 조회
 class PostList(APIView):
     @swagger_auto_schema(
         operation_summary="게시글 생성",
@@ -100,10 +101,10 @@ class PostList(APIView):
     )
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @swagger_auto_schema(
         operation_summary="게시글 목록 조회",
@@ -116,7 +117,7 @@ class PostList(APIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
-## 세션 ##
+# 게시글 상세 조회, 수정, 삭제
 class PostDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly, BlockPermission]
 
@@ -160,7 +161,7 @@ class PostDetail(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+# 댓글 목록 조회
 class CommentList(APIView):
     @swagger_auto_schema(
         operation_summary="특정 게시글의 댓글 목록 조회",
@@ -175,7 +176,7 @@ class CommentList(APIView):
         serializer = CommentSerializer(comment, many=True)
         return Response(serializer.data)
 
-
+# 카테고리별 게시글 목록 조회
 class CategoryPost(APIView):
     @swagger_auto_schema(
         operation_summary="카테고리별 게시글 목록 조회",
@@ -190,17 +191,6 @@ class CategoryPost(APIView):
         serializer = LinkCategorySerializer(linkcategory, many=True)
         return Response(serializer.data)
 
-
-
-def hello_world(request):
-    if request.method == "GET":
-        return JsonResponse({
-            'status' : 200,
-            'data' : "Hello likelion-13th!"
-        })
-    
-def index(request):
-    return render(request, 'index.html')
 
 @require_http_methods(["GET"])
 def get_post_detail(reqeust, id):
@@ -218,7 +208,7 @@ def get_post_detail(reqeust, id):
             "data": post_detail_json})
     except Post.DoesNotExist:
         raise PostNotFoundException
-    
+
 @require_http_methods(["POST", "GET"])
 def post_list(request):
     
@@ -355,8 +345,6 @@ def show_comment(request, post_id):
             'data': comment_json_all
         })
         
-
-
 @require_http_methods(["GET"])
 def filter_post(request, category):
     if request.method == "GET":
@@ -380,4 +368,3 @@ def filter_post(request, category):
             'message': '카테고리별 POST 조회',
             'data': filtered_post_json_all
         })
-        

@@ -22,3 +22,13 @@ class ConflictException(BaseCustomAPIException):
 class PostConflictException(ConflictException):
     default_detail = "A conflict occurred with the post."
     default_code = "POST-CONFLICT"
+    
+class CommentException(BaseCustomAPIException):
+    status_code = 409
+    default_detail = "A conflict occurred."
+    default_code = "CONFLICT"
+    
+class UseroneConflictException(ConflictException):
+    status_code = 409
+    default_detail = "A conflict occurred with the post."
+    default_code = "POST-CONFLICT"

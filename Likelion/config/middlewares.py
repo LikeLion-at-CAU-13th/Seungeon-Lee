@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-from .custom_exceptions import BaseCustomException
 
 class ExceptionHandlerMiddleware:
     def __init__(self, get_response):

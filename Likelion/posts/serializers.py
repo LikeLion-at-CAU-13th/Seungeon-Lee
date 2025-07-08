@@ -6,6 +6,9 @@ from .models import Comment
 from .models import LinkCategory
 from .models import Image
 from config.custom_api_exceptions import PostConflictException
+from config.custom_api_exceptions import CommentException
+from config.custom_api_exceptions import UseroneConflictException
+from django.utils import timezone
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,36 +20,33 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = "__all__"
 
+    # 중복된 게시글 제목이 있다면 예외 발생
     def validate(self, data):
         request = self.context.get('request')
-        user = request.user if request else None
-
-        # 1. 중복 제목 검사
+        user = data["user"]
+        today = timezone.localdate()
+        print(user)
+        
         if Post.objects.filter(title=data['title']).exists():
-            raise serializers.ValidationError({
-                'title': f"'{data['title']}' 제목의 게시글이 이미 존재합니다."
-            })
-
-        # 2. 하루 1개 게시글 제한 (오늘 날짜 기준)
+            raise PostConflictException(detail=f"A post with title: '{data['title']}' already exists.")
+        
         if user and Post.objects.filter(
             user=user,
-            created__date=timezone.now().date()
+            created__date=today
         ).exists():
-            raise serializers.ValidationError({
-                'non_field_errors': ["하루에 하나의 게시글만 작성할 수 있습니다."]
-            })
-
-        return data
+            raise UseroneConflictException(detail=f"User already made post.")
         
+        return data
+
 class CommentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Comment
         fields = "__all__"
     
-    def validate_content(self, value):
-        if len(value.strip()) < 15:
-            raise serializers.ValidationError("댓글은 최소 15자 이상 작성해야 합니다.")
+    def validate(self, value):
+        if (len(value["comment_content"])<15):
+            raise CommentException(detail=f"Comment is too short")
         return value
         
 class LinkCategorySerializer(serializers.ModelSerializer):

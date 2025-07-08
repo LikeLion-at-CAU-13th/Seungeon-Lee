@@ -26,10 +26,10 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('', PostList.as_view()),
     # path('<int:id>/', get_post_detail),
-    path('<int:post_id>/', PostDetail.as_view()),    
+    path('<int:post_id>/', PostDetail.as_view()),
+    path('comment/', CommentCreate.as_view()),
     path('comment/<int:post_id>/', CommentList.as_view()),
     path('filter/<int:category>/', CategoryPost.as_view()),
     path('upload/', ImageUploadView.as_view(), name='image-upload'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
-
