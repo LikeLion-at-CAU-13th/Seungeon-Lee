@@ -161,7 +161,6 @@ class PostDetail(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# 댓글 목록 조회
 class CommentList(APIView):
     @swagger_auto_schema(
         operation_summary="특정 게시글의 댓글 목록 조회",
